@@ -1,0 +1,42 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "genesis": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "gen",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "outputPath": "dist/genesis",
+            "index": "src/index.html",
+            "browser": "src/main.ts",
+            "polyfills": ["zone.js"],
+            "tsConfig": "tsconfig.app.json",
+            "assets": [],
+            "styles": ["src/styles.css"],
+            "scripts": []
+          },
+          "configurations": {
+            "production": { "budgets": [{ "type": "initial", "maximumWarning": "1mb", "maximumError": "2mb" }], "outputHashing": "all" },
+            "development": { "optimization": false, "extractLicenses": false, "sourceMap": true }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": { "buildTarget": "genesis:build:production" },
+            "development": { "buildTarget": "genesis:build:development" }
+          },
+          "defaultConfiguration": "development",
+          "options": { "proxyConfig": "proxy.conf.json", "host": "0.0.0.0", "port": 4200, "allowedHosts": ["4200-ilaxspkvdevlq5hj9tbkf.e2b.app", ".e2b.app", "*.e2b.app", "localhost", "127.0.0.1"] }
+        }
+      }
+    }
+  }
+}
