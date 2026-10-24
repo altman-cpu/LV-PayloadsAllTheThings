@@ -1,0 +1,100 @@
+<div class="shell">
+  <header class="hero">
+    <div>
+      <div class="kicker">ANGULAR FORCE 1 · FULL STACK · TOR-READY · VOICE END-TO-END</div>
+      <h1>❄️ GENESIS Console</h1>
+      <p class="sub"><strong>Genesis Tencen Sintra</strong> <span class="dim">(genesis tabozo · sanga satoshi · Tencen Satoshi Nakamoto — operator handle as supplied)</span></p>
+      <p class="dim">Identity handshake first, every session. Allowlisted endpoints only. Voice in your browser, Grok-ready on the server. 360° surroundings are system entropy — calm, technical, never rage, never other people's audio.</p>
+      <div class="row wrap">
+        <button (click)="speakHandshake()">🔊 Speak handshake</button>
+        <button class="ghost" (click)="copyBash()">Copy bash handshake</button>
+        <button class="ghost" (click)="refreshTor(); refreshConnectors()">↻ Refresh surroundings</button>
+      </div>
+      <code class="bash" *ngIf="bashCommand()">{{ bashCommand() }}</code>
+      <div class="chips">
+        <span class="chip" [class.on]="health?.ok">● Backend {{ health?.ok ? 'live' : '…' }}</span>
+        <span class="chip" [class.on]="tor?.listening">● Tor {{ tor?.listening ? 'SOCKS listening' : 'direct mode' }}</span>
+        <span class="chip on">● Web Speech v{{ speechVersion }}</span>
+        <span class="chip" [class.on]="voiceStatus?.grok?.keyPresent">● Grok voice {{ voiceStatus?.grok?.keyPresent ? 'key present' : 'standby (fallback active)' }}</span>
+      </div>
+    </div>
+    <div class="card identity" *ngIf="identity">
+      <h3>🪪 Identity at handshake</h3>
+      <div><b>{{ identity.displayName }}</b> — {{ identity.codename }}</div>
+      <div class="dim">{{ identity.force }} · v{{ identity.version }}</div>
+      <div class="mono break">{{ identity.handshake }}</div>
+      <div class="dim">nonce {{ identity.nonce }} · {{ identity.issuedAt }}</div>
+      <div class="dim">{{ identity.webSpeech }}</div>
+    </div>
+  </header>
+
+  <section class="grid2">
+    <div class="card">
+      <h2>🎙️ Voice — back to back, end to end</h2>
+      <p class="dim">Arena AI Agents Web Speech <b>v{{ speechVersion }}</b> (vendored) works now with no key. Adjust the frequency — rate &amp; pitch — then speak, listen, or compile a recording of your own <code>bash genesis</code> line. Grok takes over server-side when <code>XAI_API_KEY</code> is set; the key never reaches the browser.</p>
+      <textarea [(ngModel)]="speakText" rows="3"></textarea>
+      <label>Speech rate (frequency) {{ rate }}× <input type="range" min="0.5" max="2" step="0.05" [(ngModel)]="rate"></label>
+      <label>Pitch {{ pitch }} <input type="range" min="0" max="2" step="0.05" [(ngModel)]="pitch"></label>
+      <label>Volume {{ volume }} <input type="range" min="0" max="1" step="0.05" [(ngModel)]="volume"></label>
+      <label>Voice
+        <select [(ngModel)]="selectedVoice"><option value="">Browser default</option><option *ngFor="let v of voiceNames" [value]="v">{{ v }}</option></select>
+      </label>
+      <div class="row wrap">
+        <button (click)="doSpeak()">▶ Speak</button>
+        <button class="ghost" (click)="stopSpeak()">■ Stop</button>
+        <button class="ghost" (click)="toggleListen()">{{ listening ? '■ Stop listening' : '🎤 Listen (dictate)' }}</button>
+        <button class="ghost" (click)="toggleRecording()">{{ recording ? '■ Stop & compile recording' : '⏺ Record my handshake' }}</button>
+        <button class="ghost" (click)="toggleMic()">{{ micLive ? '■ Mic visualiser off' : '📊 Mic frequency live' }}</button>
+      </div>
+      <canvas #freq width="640" height="90" class="freq"></canvas>
+      <p class="err" *ngIf="voiceError">{{ voiceError }}</p>
+      <p *ngIf="transcript"><b>Heard:</b> {{ transcript }}</p>
+      <div *ngFor="let r of recordings" class="row"><audio [src]="r.url" controls></audio><a [href]="r.url" [download]="r.filename">{{ r.filename }}</a></div>
+      <details><summary>Grok / voice status (server)</summary><pre>{{ json(voiceStatus) }}</pre></details>
+    </div>
+
+    <div class="card">
+      <h2>🧭 360° surroundings &amp; entropy</h2>
+      <p class="dim">Glacier radar of <i>system</i> surroundings: CSPRNG entropy + Tor state + API health, refreshed automatically. It does not record, follow, or play audio of anyone around you.</p>
+      <canvas #radar width="640" height="360" class="radar"></canvas>
+      <div class="row wrap"><span class="chip">Entropy mean {{ entropy?.mean ?? '—' }}</span><span class="chip">{{ entropy?.at }}</span><span class="chip" [class.on]="tor?.listening">{{ tor?.mode }}</span></div>
+      <p class="dim">{{ tor?.hint }}</p>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <h2>🕸️ Reaching endpoints — allowlisted, via Tor when you ask</h2>
+      <p class="dim">For systems <b>you own or are authorised to test</b> only (see this repo's DISCLAIMER). Private / loopback / metadata addresses are blocked and DNS is re-checked, even though PayloadsAllTheThings lives next door.</p>
+      <label>Endpoint URL <input [(ngModel)]="targetUrl" placeholder="https://your-own-system.example"></label>
+      <div class="row wrap">
+        <label class="inline"><input type="checkbox" [(ngModel)]="viaTor"> Route through Tor (socks5h)</label>
+        <select [(ngModel)]="method"><option>HEAD</option><option>GET</option></select>
+        <button (click)="runCheck()" [disabled]="checking">{{ checking ? 'Checking…' : 'Check endpoint' }}</button>
+        <button class="ghost" (click)="refreshTor()">Tor status</button>
+      </div>
+      <p class="err" *ngIf="checkError">{{ checkError }}</p>
+      <pre *ngIf="checkResult">{{ json(checkResult) }}</pre>
+      <details *ngIf="tor"><summary>Tor detail</summary><pre>{{ json(tor) }}</pre></details>
+    </div>
+
+    <div class="card">
+      <h2>🔌 Premium connectors</h2>
+      <p class="dim">Adaptable selections — each connector reports its real status and its best variant. Nothing fakes a connection.</p>
+      <div class="connector" *ngFor="let c of connectors">
+        <div class="row between"><b>{{ c.name }}</b><span class="pill">{{ c.tier }}</span></div>
+        <div class="dim">{{ c.status }} <span *ngIf="c.version">· v{{ c.version }}</span></div>
+        <div>{{ c.detail }}</div>
+        <div class="dim">{{ c.variant }}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>📜 Technical tail — live log</h2>
+    <p class="dim">Speech over environment context, in text: every handshake, check, and voice action tails here, strict and readable.</p>
+    <pre class="log">{{ log.join('\n') }}</pre>
+  </section>
+
+  <footer class="dim center">GENESIS Console · Angular Force 1 · Authorised testing only · No tracking, no recording of others, no harassment features — defence is muting, blocking, and logging.</footer>
+</div>

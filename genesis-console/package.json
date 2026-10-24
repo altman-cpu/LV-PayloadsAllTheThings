@@ -1,0 +1,17 @@
+{
+  "name": "genesis-console",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GENESIS Console — Angular Force 1 full stack: Tor-ready allowlisted endpoint checker + Arena Web Speech v0.0.1 / Grok-ready voice + 360 surroundings",
+  "scripts": {
+    "setup": "bash scripts/setup.sh",
+    "dev": "bash scripts/dev.sh",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend start",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix backend start",
+    "check": "node scripts/smoke.mjs",
+    "health": "curl -s http://127.0.0.1:8787/api/health"
+  },
+  "engines": { "node": ">=20" }
+}
